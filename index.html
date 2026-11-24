@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ミュラー・リヤー錯視｜授業用・視角8°校正版</title>
+  <!-- jsPsych 8.3.0 and keyboard plugin 2.2.0 (fixed versions) -->
+  <script src="https://unpkg.com/jspsych@8.3.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.2.0"></script>
+  <link href="https://unpkg.com/jspsych@8.3.0/css/jspsych.css" rel="stylesheet">
+  <style>
+    :root {color-scheme:dark; font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;}
+    * {box-sizing:border-box;}
+    body {background:#000;color:#f5f5f5;margin:0;min-height:100vh;overflow-x:hidden;}
+    #setup {max-width:850px;margin:34px auto;padding:18px 25px 32px;background:#151515;border:1px solid #484848;border-radius:14px;line-height:1.8;}
+    h1 {font-size:1.7rem;margin:0 0 4px;font-weight:700;}
+    .small {font-size:.89rem;color:#bdbdbd;}
+    .lead {color:#ececec;}
+    .setup-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0;}
+    label {display:block;font-size:.9rem;color:#e5e5e5;margin-bottom:4px;}
+    input {background:#fff;color:#161616;border:1px solid #aaa;border-radius:7px;padding:10px 12px;width:100%;font-size:1rem;}
+    input:focus {outline:3px solid #939393;}
+    .info {padding:12px 15px;border:1px solid #474747;border-radius:8px;background:#202020;margin-top:14px;}
+    .controls {display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px;}
+    button {border:none;border-radius:8px;padding:11px 19px;font-weight:700;cursor:pointer;font-size:1rem;}
+    button.main {background:#dcdcdc;color:#101010;}
+    button.sub {background:#454545;color:#fff;}
+    button:disabled {opacity:.45;cursor:not-allowed;}
+    #setupError {color:#ffc2c2;min-height:1.4em;}
+    #experiment {width:100%;}
+    #jspsych-target {width:100%;min-height:100vh;}
+    #jspsych-target .jspsych-content-wrapper {
+      background:#000;color:#f5f5f5;min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      padding:20px 0;
+    }
+    #jspsych-target .jspsych-content {max-width:none !important;width:100%;margin:0 auto;}
+    /* Instruction pages: centred on screen, no numbered list, neutral greys only. */
+    .message {
+      width:min(920px,calc(100vw - 64px));margin:0 auto;
+      padding:clamp(24px,3.5vw,40px);border:1px solid #474747;border-radius:14px;
+      background:#151515;line-height:1.75;text-align:center;font-size:1.07rem;
+    }
+    .message h2 {font-size:1.65rem;line-height:1.45;margin:2px 0 22px;text-align:center;}
+    .message-label {font-size:.78rem;color:#c3c3c3;letter-spacing:.13em;text-align:center;font-weight:700;}
+    .message-line {margin:11px 0;white-space:nowrap;text-align:center;}
+    .message-lead {font-size:1.12rem;margin:0 0 22px;white-space:nowrap;text-align:center;}
+    .instruction-steps {
+      display:grid;gap:13px;padding:20px 16px;
+      background:#242424;border-radius:10px;text-align:center;
+    }
+    .instruction-row {display:block;text-align:center;}
+    .instruction-text {display:block;white-space:nowrap;line-height:1.6;}
+    .key-guide {display:flex;justify-content:center;gap:16px;margin:22px 0;flex-wrap:wrap;}
+    .key-action {padding:10px 16px;background:#292929;border-radius:8px;white-space:nowrap;}
+    .message-note {color:#d6d6d6;font-size:.94rem;margin:13px 0;text-align:center;white-space:nowrap;}
+    .message-action {margin-top:24px;padding-top:18px;border-top:1px solid #464646;
+      text-align:center;font-weight:700;color:#eee;white-space:nowrap;}
+    .message-simple {max-width:760px;text-align:center;}
+    .message-simple .message-line {text-align:center;}
+    .message-simple .message-action {margin-top:22px;}
+    .message-simple h2 {margin-bottom:20px;}
+    .message-end-note {font-size:.88rem;color:#c9c9c9;text-align:center;margin:12px 0;white-space:nowrap;}
+    .kbd {font-family:inherit;border:1px solid #999;border-bottom:3px solid #999;padding:2px 9px;border-radius:5px;background:#343434;white-space:nowrap;}
+    .adjust-screen {display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;min-height:78vh;padding:5px 10px;gap:10px;}
+    .trial-head {font-size:1rem;color:#d0d0d0;text-align:center;min-height:1.8rem;}
+    .adjust-canvas {display:block;max-width:100%;background:#000;outline:none;}
+    .trial-foot {font-size:.93rem;color:#ccc;text-align:center;min-height:2rem;}
+    .alert {color:#ffcf88;font-size:.9rem;}
+    #savebar {position:fixed;bottom:10px;right:12px;background:#151515;border:1px solid #505050;padding:8px 11px;border-radius:10px;z-index:99999;display:none;gap:8px;align-items:center;}
+    #savebar span {font-size:.83rem;color:#d4d4d4;}
+    #savebar button {font-size:.82rem;padding:7px 10px;}
+    .fineprint {border-top:1px solid #484848;margin-top:22px;padding-top:12px;}
+    .calibration {margin-top:10px;border-left:3px solid #aaa;padding-left:13px;}
+    .calibration details {margin-bottom:8px;}
+    .calibration summary {cursor:pointer;}
+    #ruler {width:200px;height:28px;margin:12px 0 5px;position:relative;border-bottom:3px solid #fff;}
+    #ruler:before,#ruler:after{content:"";position:absolute;bottom:0;height:19px;border-left:2px solid #fff;}
+    #ruler:before{left:0}#ruler:after{right:0}
+    @media(max-width:860px){
+      .message {width:calc(100vw - 28px);padding:22px 18px;font-size:1rem;}
+      .message-line,.message-lead,.instruction-text,.message-note,.message-end-note {white-space:normal;overflow-wrap:anywhere;}
+      .instruction-steps {padding:16px 10px;}
+    }
+    @media(max-width:620px){
+      #setup{margin:8px;padding:13px}.setup-grid{grid-template-columns:1fr}h1{font-size:1.35rem}
+      .key-guide {display:grid;gap:10px}.message h2{font-size:1.35rem;}
+      .message-action {white-space:normal;}
+    }
+  </style>
+</head>
+<body>
+<section id="setup">
+  <h1>ミュラー・リヤー錯視の測定</h1>
+  <div class="small">心理学実験 / 調整法 / 東北大学授業用（Cogent原版に基づく）</div>
+  <p class="lead">矢羽のある<strong>標準刺激</strong>と、矢羽のない<strong>比較刺激</strong>の長さを比べます。</p>
+  <p class="lead">比較刺激の長さを調整し、同じ長さに見える位置を探してください。</p>
+  <div class="info">
+    <div><strong>本試行48試行、練習4試行</strong></div>
+    <div class="small">角度3種類 × 左右2条件 × 初期長2条件 × 4反復</div>
+    <div>主線分を視角8°で提示するため、最初に画面の校正を行います。</div>
+  </div>
+  <div class="setup-grid">
+    <div><label for="pid">参加者ID（必須）</label><input id="pid" type="text" placeholder="例：S001" maxlength="48" autocomplete="off"></div>
+    <div><label for="distanceCM">観察距離（cm）</label><input id="distanceCM" type="number" value="60" min="20" max="200" step="1"></div>
+  </div>
+  <div class="calibration">
+    <h2 style="font-size:1.1rem;margin:0 0 6px">画面の校正（必須）</h2>
+    <p class="small" style="margin:4px 0">下の白い線分を、左端から右端まで定規で測ってください。</p>
+    <p class="small" style="margin:4px 0">測った長さをmmで入力してください。ブラウザのズームは100%のままにしてください。</p>
+    <div id="ruler" aria-label="画面校正用の線分"></div>
+    <div class="setup-grid" style="margin-top:8px">
+      <div><label for="rulerMM">白い線分の実測長（mm、必須）</label><input id="rulerMM" type="number" min="5" max="150" step="0.1" placeholder="例：31.0" required></div>
+      <div><label for="distanceCM2">観察距離</label><div class="small" style="padding:8px 0">画面上部の「観察距離（cm）」を使用します（通常約60 cm）。</div></div>
+    </div>
+    <p class="small">画面に収まるかを開始時に自動確認します。刺激は勝手に縮小しません。</p>
+  </div>
+  <p class="small">操作：<span class="kbd">←</span> <span class="kbd">→</span> で比較刺激の長さを調整し、<span class="kbd">Enter</span> で決定します。</p>
+  <div class="controls">
+    <button type="button" class="main" id="start">実習を開始</button>
+    <label style="display:flex;align-items:center;gap:9px;margin:0;font-size:.94rem"><input type="checkbox" id="fullscreen" checked style="width:auto">可能なら全画面表示</label>
+  </div>
+  <p id="setupError" role="alert"></p>
+  <p class="small fineprint">データは参加者のパソコン内にCSVとして保存します。サーバーへの送信は行いません。開始時にjsPsychの読み込みにネット接続が必要です。データを失わないよう、終了画面でCSVの保存を確認してください。</p>
+</section>
+<div id="experiment" hidden><div id="jspsych-target"></div></div>
+<div id="savebar"><span id="saveCount"></span><button type="button" id="savePartial" class="sub">途中経過をCSV保存</button></div>
+
+<script>
+'use strict';
+/*
+  Muller-Lyer adjustment experiment based on four Cogent .m scripts.
+  Standard: 8 deg; wing geometry uses 1.5/2.6 deg components; stroke width 5 CSS px.
+  The common endpoint of comparison and standard is preserved at screen centre.
+  Each short/long start uses a random 3/4/5 or 10/11/12 deg value.
+  4 blocks x (3 angle x 2 sides x 2 starts) = 48 balanced trials.
+*/
+const SETTINGS = Object.freeze({
+  version: '1.3.1-8deg-fixed-ui', standardDeg: 8, angleDegs:[30,60,120],
+  shortStarts:[3,4,5], longStarts:[10,11,12],
+  stepDeg:0.1, minDeg:0.5, maxDeg:13,
+  blankMs:500, practiceCount:4, blocks:4, strokePx:5
+});
+const COLUMNS = [
+  'participant_id','session_id','date_time','is_practice','trial_number','block_number',
+  'condition_repeat','standard_side','wing_angle_deg','initial_group','initial_length_deg',
+  'standard_length_deg','final_comparison_length_deg','signed_error_deg','illusion_percent',
+  'change_from_initial_deg','n_adjustments','n_increase','n_decrease','rt_ms',
+  'px_per_degree','adjustment_step_deg','view_width_css_px','view_height_css_px',
+  'viewport_width_css_px','device_pixel_ratio','program_version',
+  'calibration_measured_mm','viewing_distance_cm','calibration_target_px_per_deg',
+  'fit_scale_ratio','physical_standard_deg','physical_comparison_deg','physical_signed_error_deg','scale_mode'
+];
+let jsPsychInstance = null, started = false, completed = false;
+let participantId = '', sessionId = '', ppd = 29;
+let targetPpd = null, measuredMM = null, viewingDistanceCM = 60, scaleMode='calibrated-8deg';
+let trialRecords = [], activeCondition = null;
+const $ = id => document.getElementById(id);
+function shuffle(items){const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function fmt(n, digits=2){return Number(n.toFixed(digits));}
+function htmlEsc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function csvCell(v){const s = v===undefined || v===null ? '' : String(v);return /[",\r\n]/.test(s) ? '"'+s.replaceAll('"','""')+'"' : s;}
+function rowsToCsv(rows){return '\ufeff'+[COLUMNS.join(','),...rows.map(r=>COLUMNS.map(k=>csvCell(r[k])).join(','))].join('\r\n')+'\r\n';}
+function csvFilename(partial){
+  const now = new Date(); const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+  return `muller_lyer_${participantId.replace(/[^A-Za-z0-9_-]/g,'_')}_${stamp}${partial?'_partial':''}.csv`;
+}
+function downloadCsv(partial=false){
+  if(trialRecords.length===0){alert('保存対象の試行データがまだありません。');return;}
+  const bytes = rowsToCsv(trialRecords);
+  const blob = new Blob([bytes],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=csvFilename(partial);
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+function saveProgress(){
+  const n=trialRecords.filter(r=>!r.is_practice).length;
+  $('saveCount').textContent=`本試行 ${n}/48 完了`;
+  try {sessionStorage.setItem('ml_progress_'+sessionId,JSON.stringify(trialRecords));}catch(e){}
+}
+function makeConditions(){
+  const result=[];
+  const base=[];
+  for(const angle of SETTINGS.angleDegs)for(const side of ['left','right'])for(const group of ['short','long'])base.push({angle,side,group});
+  let history=[];
+  for(let block=1;block<=SETTINGS.blocks;block++){
+    let best=null, bestPenalty=Infinity;
+    // Choose a well-mixed shuffled block without introducing unequal condition counts.
+    for(let attempt=0;attempt<250;attempt++){
+      const candidate=shuffle(base);
+      const seq=history.slice(-3).concat(candidate);
+      let penalty=0;
+      for(let i=2;i<seq.length;i++){
+        if(seq[i].angle===seq[i-1].angle && seq[i].angle===seq[i-2].angle)penalty+=4;
+        if(seq[i].side===seq[i-1].side && seq[i].side===seq[i-2].side)penalty+=3;
+        if(seq[i].group===seq[i-1].group && seq[i].group===seq[i-2].group)penalty+=3;
+      }
+      for(let i=1;i<seq.length;i++) if(seq[i].angle===seq[i-1].angle && seq[i].side===seq[i-1].side)penalty+=1;
+      if(penalty<bestPenalty){best=candidate;bestPenalty=penalty;}
+      if(penalty===0)break;
+    }
+    for(const item of best){
+      const values=item.group==='short'?SETTINGS.shortStarts:SETTINGS.longStarts;
+      result.push({...item,initialDeg:values[Math.floor(Math.random()*values.length)],block,repetition:block,number:result.length+1,practice:false});
+    }
+    history=history.concat(best);
+  }
+  return result;
+}
+function makePractice(){
+  return [
+    {angle:30,side:'right',group:'short',initialDeg:4},
+    {angle:120,side:'left',group:'long',initialDeg:11},
+    {angle:60,side:'left',group:'short',initialDeg:5},
+    {angle:30,side:'right',group:'long',initialDeg:10}
+  ].map((x,i)=>({...x,practice:true,number:i+1,block:0,repetition:0}));
+}
+// Custom jsPsych plugin draws both lines on canvas; actual response is handled trial-by-trial by jsPsych.
+class MullerLyerAdjustment {
+  constructor(jsPsych){this.jsPsych=jsPsych;}
+  static info={name:'muller-lyer-adjustment',version:'1.0.0',parameters:{},data:{}};
+  trial(displayElement){
+    const condition=activeCondition;
+    if(!condition){throw new Error('測定条件が設定されていません。');}
+    let lengthTenths=Math.round(condition.initialDeg*10);
+    let nAdjust=0,nIncrease=0,nDecrease=0,ended=false;
+    // Do not cap the stimulus canvas at 1160px: large displays should be usable.
+    const width=Math.max(330,window.innerWidth-28);
+    const height=Math.max(290,Math.min(window.innerHeight-210,590));
+    displayElement.innerHTML=`<div class="adjust-screen">
+      <div class="trial-head">${condition.practice?`練習 ${condition.number} / 4`:`本試行 ${condition.number} / 48　（ブロック ${condition.block} / 4）`}</div>
+      <canvas id="stimulusCanvas" class="adjust-canvas" aria-label="ミュラー・リヤー錯視刺激"></canvas>
+      <div class="trial-foot"><span class="kbd">←</span> / <span class="kbd">→</span> 比較線分の先端を移動　　<span class="kbd">Enter</span> 同じ長さに見えたら決定</div>
+      <div class="alert" id="clipWarning" aria-live="polite"></div>
+    </div>`;
+    const canvas=displayElement.querySelector('canvas');
+    const warning=displayElement.querySelector('#clipWarning');
+    const ratio=Math.max(1,window.devicePixelRatio||1);
+    canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);
+    canvas.style.width=width+'px';canvas.style.height=height+'px';
+    const ctx=canvas.getContext('2d');
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    // Keep a fixed central junction for each standard-side condition, shifted slightly
+    // so the longest allowed comparison (13deg) and outward standard fins (9.5deg)
+    // fit symmetrically. It does not vary with angle or short/long starting length.
+    const centerX=width/2 + (condition.side==='left' ? -1 : 1)*1.75*ppd;
+    const centerY=height/2;
+    const startTime=performance.now();
+    let firstDrawTime=0;
+    const draw=()=>{
+      const length=lengthTenths/10;
+      ctx.clearRect(0,0,width,height);ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);
+      ctx.strokeStyle='#fff';ctx.lineWidth=SETTINGS.strokePx;ctx.lineCap='butt';ctx.lineJoin='miter';
+      const s=SETTINGS.standardDeg*ppd;
+      const stdLeft = condition.side==='left' ? centerX-s : centerX;
+      const stdRight=condition.side==='left' ? centerX : centerX+s;
+      const compX=condition.side==='left' ? centerX+length*ppd : centerX-length*ppd;
+      const compareLeft=condition.side==='left' ? centerX:compX;
+      const compareRight=condition.side==='left' ? compX:centerX;
+      function line(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+      // The comparison line is plain (NO fins); its inner end touches the standard at the centre.
+      line(compareLeft,centerY,compareRight,centerY);
+      line(stdLeft,centerY,stdRight,centerY);
+      const dx = condition.angle===30 ? 2.6 : 1.5;
+      const dy = condition.angle===30 ? 1.5 : 2.6;
+      const orientation = condition.angle===120 ? -1 : 1;
+      // Left standard endpoint: point fins right for 30/60, left for 120.
+      for(const ySign of [-1,+1]){
+        line(stdLeft,centerY,stdLeft+orientation*dx*ppd,centerY+ySign*dy*ppd);
+        line(stdRight,centerY,stdRight-orientation*dx*ppd,centerY+ySign*dy*ppd);
+      }
+      const extremeLeft=Math.min(stdLeft,compareLeft,stdLeft+orientation*dx*ppd,stdRight-orientation*dx*ppd);
+      const extremeRight=Math.max(stdRight,compareRight,stdLeft+orientation*dx*ppd,stdRight-orientation*dx*ppd);
+      warning.textContent=extremeLeft<11 || extremeRight>width-11 ? '表示領域が変わりました。全画面表示にして実験をやり直してください。' : '';
+      if(!firstDrawTime)firstDrawTime=performance.now();
+    };
+    draw();
+    function onKey(e){
+      if(ended || e.altKey || e.ctrlKey || e.metaKey)return;
+      const key=e.key;
+      if(!['ArrowLeft','ArrowRight','Enter','NumpadEnter'].includes(key))return;
+      e.preventDefault();e.stopPropagation();
+      if(key==='Enter'||key==='NumpadEnter'){
+        if(e.repeat)return;
+        ended=true;
+        window.removeEventListener('keydown',onKey,true);
+        const last=lengthTenths/10;
+        const signed=fmt(last-SETTINGS.standardDeg,3);
+        const record={
+          participant_id:participantId,session_id:sessionId,date_time:new Date().toISOString(),
+          is_practice:condition.practice?1:0,trial_number:condition.number,block_number:condition.block,
+          condition_repeat:condition.repetition,standard_side:condition.side,wing_angle_deg:condition.angle,
+          initial_group:condition.group,initial_length_deg:condition.initialDeg,
+          standard_length_deg:SETTINGS.standardDeg,final_comparison_length_deg:last,
+          signed_error_deg:signed,illusion_percent:fmt(100*signed/SETTINGS.standardDeg,3),
+          change_from_initial_deg:fmt(last-condition.initialDeg,3),
+          n_adjustments:nAdjust,n_increase:nIncrease,n_decrease:nDecrease,
+          rt_ms:Math.round(performance.now()-firstDrawTime),px_per_degree:ppd,
+          adjustment_step_deg:SETTINGS.stepDeg,view_width_css_px:width,view_height_css_px:height,
+          viewport_width_css_px:window.innerWidth,device_pixel_ratio:window.devicePixelRatio||1,
+          program_version:SETTINGS.version,
+          calibration_measured_mm:measuredMM??'',viewing_distance_cm:viewingDistanceCM,
+          calibration_target_px_per_deg:targetPpd??'',fit_scale_ratio:targetPpd?fmt(ppd/targetPpd,5):'',
+          physical_standard_deg:targetPpd?fmt(SETTINGS.standardDeg*ppd/targetPpd,4):'',
+          physical_comparison_deg:targetPpd?fmt(last*ppd/targetPpd,4):'',
+          physical_signed_error_deg:targetPpd?fmt(signed*ppd/targetPpd,4):'',scale_mode:scaleMode
+        };
+        trialRecords.push(record);
+        saveProgress();
+        // Saves the same data inside jsPsych for programmatic analysis.
+        window.__lastMeasurement=record;
+        thisPlugin.jsPsych.finishTrial({...record,trial_kind:'adjustment'});
+        return;
+      }
+      // Preserve the original endpoint-moving keys, for both standard-side conditions.
+      const physicalDirection=key==='ArrowRight'?1:-1;
+      const lengthDirection=condition.side==='left'?physicalDirection:-physicalDirection;
+      const candidate=lengthTenths+lengthDirection;
+      if(candidate<Math.round(SETTINGS.minDeg*10) || candidate>Math.round(SETTINGS.maxDeg*10))return;
+      lengthTenths=candidate;nAdjust++;
+      if(lengthDirection>0)nIncrease++;else nDecrease++;
+      draw();
+    }
+    const thisPlugin=this;
+    window.addEventListener('keydown',onKey,true);
+  }
+}
+
+function textTrial(html){return {type:jsPsychHtmlKeyboardResponse,stimulus:`<div class="message">${html}</div>`,choices:[' '],data:{trial_kind:'instruction'}};}
+function blankTrial(){return {type:jsPsychHtmlKeyboardResponse,stimulus:'<div style="background:#000;min-height:100vh"></div>',choices:'NO_KEYS',trial_duration:SETTINGS.blankMs,data:{trial_kind:'blank'}};}
+function conditionTrial(c){return {
+  type:MullerLyerAdjustment,
+  on_start:()=>{activeCondition=c;},
+  data:{trial_kind:'adjustment',is_practice:c.practice?1:0}
+};}
+function experimentTimeline(){
+  const timeline=[];
+  timeline.push(textTrial(`<div class="message-label">練習</div><h2>実験の進め方</h2>
+    <p class="message-lead">2本の水平線分が、同じ長さに見えるように調整する課題です。</p>
+    <div class="instruction-steps">
+      <div class="instruction-row"><span class="instruction-text">矢羽のある線分が標準刺激、矢羽のない線分が比較刺激です。</span></div>
+      <div class="instruction-row"><span class="instruction-text">比較刺激の外側の端点を動かし、長さを調整してください。</span></div>
+      <div class="instruction-row"><span class="instruction-text">矢羽を除き、水平な線分の長さだけを判断してください。</span></div>
+    </div>
+    <div class="key-guide">
+      <div class="key-action"><span class="kbd">←</span> <span class="kbd">→</span>　長さを調整</div>
+      <div class="key-action"><span class="kbd">Enter</span>　同じ長さに見えたら決定</div>
+    </div>
+    <p class="message-note">なるべく正確に、ただし時間をかけすぎずに回答してください。</p>
+    <div class="message-action">スペースキーで練習を開始（4試行）</div>`));
+  for(const c of makePractice()){timeline.push(blankTrial(),conditionTrial(c));}
+  timeline.push(textTrial(`<div class="message-label">本試行</div><h2>本試行を始めます</h2>
+    <p class="message-line">これから48試行を行います。操作方法は練習と同じです。</p>
+    <p class="message-line">矢羽の角度や左右の位置、比較刺激の初期長が変わります。</p>
+    <div class="message-action">スペースキーで本試行を開始</div>`));
+  const main=makeConditions();
+  for(const c of main){
+    if(c.number===13||c.number===25||c.number===37){
+      timeline.push(textTrial(`<div class="message-label">本試行</div><h2>休憩</h2>
+        <p class="message-line">${c.number-1} / 48 試行が終了しました。</p>
+        <p class="message-line">少し休んでから、次のブロックへ進んでください。</p>
+        <div class="message-action">スペースキーで再開</div>`));
+    }
+    timeline.push(blankTrial(),conditionTrial(c));
+  }
+  return timeline;
+}
+function endScreen(){
+  completed=true;
+  const n=trialRecords.filter(r=>!r.is_practice).length;
+  $('jspsych-target').innerHTML=`<div class="message message-simple">
+    <div class="message-label">終了</div><h2>実習は終了です</h2>
+    <p class="message-line">本試行 <strong>${n} / 48</strong> 試行が終了しました。</p>
+    <p class="message-line">CSVファイルが保存されたことを確認してください。</p>
+    <div class="message-action"><button class="main" id="downloadAgain">CSVをもう一度保存</button></div>
+    <p class="message-end-note">CSVには練習試行も含まれます。</p>
+    <p class="message-end-note">解析時は <code>is_practice = 0</code> の行を使用してください。</p>
+    <p class="message-end-note">実験者の指示に従ってください。</p>
+  </div>`;
+  $('downloadAgain').addEventListener('click',()=>downloadCsv(false));
+  $('savebar').style.display='none';
+  downloadCsv(false);
+}
+function showError(s){$('setupError').textContent=s;}
+$('savePartial').addEventListener('click',()=>downloadCsv(true));
+$('start').addEventListener('click', async ()=>{
+  if(started)return;
+  participantId=$('pid').value.trim();
+  // Mandatory physical calibration: no automatic shrinking, to keep the standard at 8°.
+  const measuredText=$('rulerMM').value.trim();
+  viewingDistanceCM=Number($('distanceCM').value);
+  if(!Number.isFinite(viewingDistanceCM)||viewingDistanceCM<20||viewingDistanceCM>200){showError('観察距離（cm）を確認してください。');return;}
+  if(!participantId){showError('参加者IDを入力してください。');$('pid').focus();return;}
+  if(!/^[\w\-ぁ-んァ-ヶ一-龥]+$/.test(participantId)){showError('参加者IDは英数字、_、-、日本語を使用してください。');return;}
+  measuredMM=Number(measuredText);
+  if(!measuredText||!Number.isFinite(measuredMM)||measuredMM<5||measuredMM>150){
+    showError('白い校正用線分の長さを定規で測り、mmで入力してください。');$('rulerMM').focus();return;
+  }
+  // 200 CSS px corresponds to measuredMM. Viewing distance cm => mm.
+  targetPpd=(200/measuredMM)*(2*viewingDistanceCM*10*Math.tan(Math.PI/360));
+  if(typeof initJsPsych!=='function'||typeof jsPsychHtmlKeyboardResponse==='undefined'){
+    showError('jsPsychライブラリを読み込めませんでした。ネット接続を確認し、再読み込みしてください。');return;
+  }
+  $('start').disabled=true;
+  if($('fullscreen').checked && document.documentElement.requestFullscreen){
+    try{await document.documentElement.requestFullscreen();}catch(e){}
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  }
+  // Longest possible comparison is 13°, plus 8° standard and 1.5° outside fin.
+  // Use physical screen size at the calibrated pixel density. Do not shrink the stimuli.
+  const availableWidth=window.innerWidth-28;
+  const availableHeight=Math.max(290,Math.min(window.innerHeight-210,590));
+  const requiredWidth=22.5*targetPpd+24;
+  const requiredHeight=5.2*targetPpd+32;
+  if(availableWidth<requiredWidth || availableHeight<requiredHeight){
+    const physicalWidthMm=availableWidth*measuredMM/200;
+    const neededWidthMm=requiredWidth*measuredMM/200;
+    const physicalHeightMm=availableHeight*measuredMM/200;
+    const neededHeightMm=requiredHeight*measuredMM/200;
+    showError(`視角8°のまま表示するには画面が足りません。横幅：必要 約${neededWidthMm.toFixed(0)} mm／現在の表示領域 約${physicalWidthMm.toFixed(0)} mm。高さ：必要 約${neededHeightMm.toFixed(0)} mm／現在 約${physicalHeightMm.toFixed(0)} mm。ブラウザを最大化・全画面表示にし、横幅の広い画面で再実行してください。8°を維持したまま縮小はできません。`);
+    $('start').disabled=false;return;
+  }
+  ppd=targetPpd;
+  scaleMode='calibrated-8deg';
+  started=true;sessionId=new Date().toISOString().replace(/[-:.TZ]/g,'')+'_'+Math.random().toString(36).slice(2,8);
+  $('setup').hidden=true;$('experiment').hidden=false;$('savebar').style.display='flex';
+  try{
+    jsPsychInstance=initJsPsych({
+      display_element:'jspsych-target',
+      on_finish:endScreen
+    });
+    jsPsychInstance.run(experimentTimeline());
+  }catch(e){
+    console.error(e);
+    showError('開始時にエラーが発生しました：'+e.message);
+    $('setup').hidden=false;$('experiment').hidden=true;$('savebar').style.display='none';started=false;$('start').disabled=false;
+  }
+});
+window.addEventListener('beforeunload',e=>{if(started&&!completed){e.preventDefault();e.returnValue='';}});
+// Read-only helpers for a teacher to verify the generated design in browser developer tools.
+window.MullerLyerDebug={SETTINGS,makeConditions,makePractice,getRecords:()=>trialRecords.slice(),rowsToCsv};
+</script>
+</body>
+</html>
